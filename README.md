@@ -49,3 +49,11 @@ node scripts/browser-test.mjs
 The browser test uses a separate disposable profile under `test-results/`, never the user's browser profile. It exercises import errors, multiple product rows, missing weights/rates, calculations, real rich-HTML clipboard writes, stale preview gating, save/edit/Sent, search, backup merge, persistent browser restart, offline navigation, mobile layout and deletion-safe serial suggestions. Screenshots are saved there as well. Actual Outlook rendering is a manual acceptance check and requires the user's Outlook installation.
 
 Next.js static export is configured with `output: 'export'`, following the [official static export documentation](https://nextjs.org/docs/app/guides/static-exports).
+
+## Vercel deployment
+
+Deploy the `main` branch from the repository root. `vercel.json` selects Next.js, installs dependencies using `npm ci`, runs the complete `npm run build` command (including the offline service worker), and publishes the static `out/` directory. No runtime application server or cloud database is introduced.
+
+Only source files, templates, assets, configuration, tests and the dependency lockfile belong in Git. Do not force-add `node_modules`, `.next`, `out`, test browser profiles or TypeScript build caches. Windows-generated npm launchers committed with Git mode `100644` cannot execute on Vercel's Linux builders; a fresh install creates the correct platform-specific launchers. `.gitignore` protects Git commits and `.vercelignore` excludes local artifacts from CLI uploads.
+
+For a clean checkout, run `npm ci`, `npm run build`, `npm run typecheck` and `npm test`. Build first to generate Next.js's type declarations. If retrying a deployment that cached the previously committed dependencies, redeploy the corrected commit with the existing build cache disabled.
