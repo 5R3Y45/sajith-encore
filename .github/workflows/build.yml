@@ -1,0 +1,40 @@
+name: Clean Linux build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reject tracked dependencies and generated output
+        run: |
+          tracked="$(git ls-files node_modules .next out test-results next-env.d.ts '*.tsbuildinfo')"
+          if [ -n "$tracked" ]; then
+            printf '%s\n' "$tracked"
+            echo 'Generated files must not be tracked.'
+            exit 1
+          fi
+      - run: npm ci
+      - name: Verify Linux executable permissions
+        run: |
+          test -x node_modules/.bin/next
+          test -x node_modules/next/dist/bin/next
+          ls -l node_modules/.bin/next node_modules/next/dist/bin/next
+          ./node_modules/.bin/next --version
+      - run: npm run build
+      - run: npm run typecheck
+      - run: npm test

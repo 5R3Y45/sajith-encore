@@ -57,3 +57,5 @@ Deploy the `main` branch from the repository root. `vercel.json` selects Next.js
 Only source files, templates, assets, configuration, tests and the dependency lockfile belong in Git. Do not force-add `node_modules`, `.next`, `out`, test browser profiles or TypeScript build caches. Windows-generated npm launchers committed with Git mode `100644` cannot execute on Vercel's Linux builders; a fresh install creates the correct platform-specific launchers. `.gitignore` protects Git commits and `.vercelignore` excludes local artifacts from CLI uploads.
 
 For a clean checkout, run `npm ci`, `npm run build`, `npm run typecheck` and `npm test`. Build first to generate Next.js's type declarations. If retrying a deployment that cached the previously committed dependencies, redeploy the corrected commit with the existing build cache disabled.
+
+The Clean Linux build workflow also performs a fresh install on Ubuntu, checks both Next.js executable permissions, builds the static export, runs the type check and tests, and rejects accidentally tracked generated files.
