@@ -52,7 +52,9 @@ Next.js static export is configured with `output: 'export'`, following the [offi
 
 ## Vercel deployment
 
-Deploy the `main` branch from the repository root. `vercel.json` selects Next.js, installs dependencies using `npm ci`, runs the complete `npm run build` command (including the offline service worker), and publishes the static `out/` directory. No runtime application server or cloud database is introduced.
+Deploy the `main` branch from the repository root. This application deliberately uses Next.js static export, so `vercel.json` selects Vercel's **Other** framework preset, installs dependencies using `npm ci`, runs the complete `npm run build` command (including the offline service worker), and publishes the static `out/` directory. No runtime application server or cloud database is introduced.
+
+Do not combine Vercel's `nextjs` framework preset with `outputDirectory: "out"`. The Next.js adapter treats the configured output directory as its framework build directory and looks there for internal files such as `routes-manifest.json`. Static export correctly writes those internal files to `.next/` and only deployable HTML, JavaScript, CSS, text payloads and `sw.js` to `out/`. Using the Other preset tells Vercel to serve that completed static export directly, so no framework manifest is required in `out/`.
 
 Only source files, templates, assets, configuration, tests and the dependency lockfile belong in Git. Do not force-add `node_modules`, `.next`, `out`, test browser profiles or TypeScript build caches. Windows-generated npm launchers committed with Git mode `100644` cannot execute on Vercel's Linux builders; a fresh install creates the correct platform-specific launchers. `.gitignore` protects Git commits and `.vercelignore` excludes local artifacts from CLI uploads.
 
