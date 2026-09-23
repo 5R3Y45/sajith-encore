@@ -1,6 +1,7 @@
 import { chromium } from '@playwright/test';
 import { strict as assert } from 'node:assert';
 import { mkdir, rm } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 const profile=path.resolve('test-results/browser-profile');
 await mkdir('test-results',{recursive:true});
@@ -19,25 +20,32 @@ await page.getByLabel('Product JSON').fill(JSON.stringify({schema_version:'1.0',
 await page.getByRole('button',{name:'Import Products'}).click();
 await page.getByRole('heading',{name:'Product Pricing',exact:true}).waitFor();
 assert.equal(await page.locator('.product').count(),2);
+assert.equal(await page.getByLabel('USD → AED').inputValue(),'3.70');assert.equal(await page.getByLabel('EUR → AED').inputValue(),'4.30');assert.equal(await page.getByLabel('GBP → AED').inputValue(),'4.90');
 assert.equal(await page.getByRole('button',{name:'Copy Quotation',exact:true}).isDisabled(),true);
 await page.getByRole('button',{name:'Modify Template'}).click();await page.locator('.alert.error').waitFor();
 await page.getByLabel('Customer / Company Name').fill('Test customer');
 await page.getByLabel('Quotation Date', {exact:true}).fill('2026-09-22');
 await page.getByLabel('Quotation Serial Number').fill('3');
 await page.getByLabel('Unit Price',{exact:true}).nth(0).fill('100');
+await page.getByLabel('Margin %',{exact:true}).nth(0).fill('15');
 await page.getByLabel('Lead Time',{exact:true}).nth(0).fill('1 week');
 await page.getByLabel('Unit Price',{exact:true}).nth(1).fill('10');
 await page.getByLabel('Lead Time',{exact:true}).nth(1).fill('2–3 weeks');
 await page.getByRole('button',{name:'Modify Template'}).click();await page.getByRole('alert').filter({hasText:'Unit weight'}).waitFor();
 await page.getByLabel('Unit Weight (kg)',{exact:true}).nth(1).fill('0.55');
 await page.getByLabel('Currency',{exact:true}).nth(1).selectOption('EUR');
-await page.getByRole('button',{name:'Modify Template'}).click();await page.getByRole('alert').filter({hasText:'EUR exchange rate'}).waitFor();
-await page.getByLabel('EUR → AED').fill('4');
+await page.getByLabel('USD → AED').fill('3.72');
 await page.getByRole('button',{name:'Modify Template'}).click();
 await page.getByRole('status').filter({hasText:'Quotation updated'}).waitFor();
-const frame=page.frameLocator('iframe');assert.equal(await frame.locator('body').innerText().then(s=>s.includes('882.00')),true);
+const frame=page.frameLocator('iframe');assert.equal(await frame.locator('body').innerText().then(s=>s.includes('1006.53')),true);
+assert.equal(await page.getByText('115.00 USD',{exact:true}).isVisible(),true);
+await page.getByRole('button',{name:'Delete Product SECOND'}).click();
+assert.equal(await page.locator('.product').count(),1);assert.equal(await page.getByRole('button',{name:'Delete Product S-T50'}).isDisabled(),true);
+assert.equal(await frame.locator('body').innerText().then(s=>!s.includes('SECOND')&&s.includes('929.88')),true);
+assert.equal(await page.getByRole('button',{name:'Copy Quotation',exact:true}).isDisabled(),true);
+await page.getByRole('button',{name:'Modify Template'}).click();await page.getByRole('status').filter({hasText:'Quotation updated'}).waitFor();
 await page.getByRole('button',{name:'Copy Quotation',exact:true}).click();await page.getByRole('status').filter({hasText:'Formatted quotation copied'}).waitFor();
-const copied=await page.evaluate(async()=>{const items=await navigator.clipboard.read();return (await items[0].getType('text/html')).text();});assert(copied.includes('<table'));assert(copied.includes('882.00'));assert(!copied.includes('Best regards'));assert(!copied.includes('Product Pricing'));
+const copied=await page.evaluate(async()=>{const items=await navigator.clipboard.read();return (await items[0].getType('text/html')).text();});assert(copied.includes('<table'));assert(copied.includes('929.88'));assert(!copied.includes('SECOND'));assert(!copied.includes('Margin'));assert(!copied.includes('115.00 USD'));assert(!copied.includes('Best regards'));assert(!copied.includes('Product Pricing'));
 await page.getByLabel('Quotation Serial Number').fill('4');assert(await frame.locator('body').innerText().then(s=>s.includes('Q-ENCR26-S4-2209')));assert(await page.getByRole('button',{name:'Copy Quotation',exact:true}).isDisabled());
 await page.getByRole('button',{name:'Modify Template'}).click();await page.getByRole('button',{name:'Save Quotation',exact:true}).click();await page.getByRole('status').filter({hasText:'as Draft'}).waitFor();
 await page.locator('iframe').scrollIntoViewIfNeeded();
@@ -48,6 +56,7 @@ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.inne
 await page.screenshot({path:'test-results/editor-mobile.png',fullPage:true});
 await page.setViewportSize({width:1440,height:1100});
 await page.getByRole('link',{name:'History',exact:true}).click();await page.getByRole('cell',{name:'Q-ENCR26-S4-2209',exact:true}).waitFor();
+assert.equal(await page.getByRole('cell',{name:'S-T50',exact:true}).isVisible(),true);assert.equal(await page.getByRole('cell',{name:/SECOND/}).count(),0);
 await page.getByLabel('Search quotations').fill('Mitsubishi');assert.equal(await page.locator('tbody tr').count(),1);
 await page.getByRole('button',{name:'Mark as Sent',exact:true}).click();await page.getByRole('status').filter({hasText:'marked as Sent'}).waitFor();
 await page.getByRole('button',{name:'View',exact:true}).click();await page.getByRole('dialog').waitFor();await page.getByRole('button',{name:'Close',exact:true}).click();
@@ -55,6 +64,7 @@ await page.getByRole('link',{name:'Edit',exact:true}).click();await page.getByLa
 await page.getByRole('button',{name:'Modify Template'}).click();assert.equal(await page.getByLabel('Quotation Serial Number').inputValue(),'4');
 await page.getByRole('link',{name:'History',exact:true}).click();await page.getByRole('cell',{name:'Q-ENCR26-S4-2209',exact:true}).waitFor();
 const downloadPromise=page.waitForEvent('download');await page.getByRole('button',{name:'Export Backup',exact:true}).click();const backup=await downloadPromise;await backup.saveAs('test-results/backup.json');
+const backupJson=JSON.parse(await readFile('test-results/backup.json','utf8'));assert.equal(backupJson.quotes[0].editor.products.length,1);assert.equal(backupJson.quotes[0].editor.products[0].margin,'15');assert.equal(backupJson.quotes[0].editor.rates.USD,'3.72');assert.equal(backupJson.quotes[0].totals.rows[0].priceAfterMargin,'115.00');
 await page.locator('.file-button input').setInputFiles('test-results/backup.json');await page.getByRole('dialog',{name:'Restore backup'}).waitFor();await page.getByRole('button',{name:'Merge compatible records'}).click();await page.getByRole('status').filter({hasText:'merged successfully'}).waitFor();
 await page.screenshot({path:'test-results/history-desktop.png',fullPage:true});
 await page.evaluate(()=>navigator.serviceWorker.ready.then(()=>true));
@@ -68,6 +78,7 @@ assert(await page.evaluate(()=>document.documentElement.scrollWidth<=window.inne
 await page.getByRole('link',{name:'History',exact:true}).click();await page.getByRole('cell',{name:'Q-ENCR26-S4-2209',exact:true}).waitFor();
 await page.getByRole('button',{name:'Delete',exact:true}).click();await page.getByRole('heading',{name:'No quotations saved yet'}).waitFor();
 await page.getByRole('link',{name:'Generator',exact:true}).click();await page.getByLabel('Product JSON').fill(JSON.stringify({schema_version:'1.0',products:[product]}));await page.getByRole('button',{name:'Import Products'}).click();await page.getByLabel('Quotation Serial Number').waitFor();assert.equal(await page.getByLabel('Quotation Serial Number').inputValue(),'5');
-assert.deepEqual(errors,[]);await context.close();console.log('Browser workflow passed: import, errors, pricing, clipboard HTML, stale protection, save/edit/Sent, history search, backup merge, browser restart, offline navigation, mobile and deleted-serial retention.');
+assert.equal(await page.getByLabel('USD → AED').inputValue(),'3.72');assert.equal(await page.getByLabel('EUR → AED').inputValue(),'4.30');assert.equal(await page.getByLabel('GBP → AED').inputValue(),'4.90');assert.equal(await page.getByLabel('Margin %').inputValue(),'0');
+assert.deepEqual(errors,[]);await context.close();console.log('Browser workflow passed: margin pricing, editable persisted rates, product deletion, clean clipboard HTML, stale protection, save/edit/Sent, backup merge, browser restart, offline navigation, mobile and deleted-serial retention.');
 
 
