@@ -5,21 +5,20 @@ import { encoreLogo } from './encore-logo';
 export const escapeHtml = (value: string | number | null) => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]!));
 const displayDate = (date: string) => date.split('-').reverse().join('/');
 
-export function renderQuote(editor: Editor, totals?: Totals) {
+export function renderEncoreV1Quote(editor: Editor, totals?: Totals) {
  const h = escapeHtml;
  const number = h(quoteNumber(editor.date,editor.serial));
  const customer = h(editor.customer || 'Customer');
  const rows = editor.products.map((product,index) => {
   const partNumber = h(product.part_number);
   const data = product.datasheet_url && safeUrl(product.datasheet_url) ? `<a href="${h(product.datasheet_url)}" style="color:#1789a6;text-decoration:underline;">${partNumber}</a>` : partNumber;
-  const productOrigin = product.countryOfOrigin ? ` | Country of Origin - ${h(product.countryOfOrigin)}` : '';
   const background = index % 2 ? 'background:#fbfdfd;' : '';
   return `<tr style="${background}">
             <td style="padding:11px 7px;border-top:1px solid #d8e3e6;text-align:center;vertical-align:top;">${index+1}</td>
             <td style="padding:11px;border-top:1px solid #d8e3e6;vertical-align:top;line-height:1.55;">
               <span style="font-weight:700;color:#173f48;">${partNumber} - ${h(product.description)}</span><br>
-              <span style="color:#50676e;">Weight - ${h(product.weight || '[Missing weight]')}${product.weight?' kg':''}${productOrigin}</span><br>
-              <span style="color:#6a858c;">Datasheet: ${data}</span>
+              <span style="color:#50676e;">Weight - ${h(product.weight || '[Missing weight]')}${product.weight?' kg':''}</span><br>
+              <span style="color:#6a858c;">Data: ${data}</span>
             </td>
             <td style="padding:11px 7px;border-top:1px solid #d8e3e6;text-align:center;vertical-align:top;">${product.quantity}</td>
             <td style="padding:11px 7px;border-top:1px solid #d8e3e6;text-align:right;vertical-align:top;">${totals?.rows[index].unit ?? '[0.00]'}</td>
@@ -52,7 +51,7 @@ export function renderQuote(editor: Editor, totals?: Totals) {
           <div style="margin-top:5px;font-size:31px;line-height:1.1;font-weight:800;color:#153e46;">QUOTATION</div>
           <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:16px;border-collapse:collapse;font-size:12px;color:#40545b;">
             <tr>
-              <td style="padding:0 18px 0 0;"><strong style="color:#153e46;">Salesperson</strong><br>Sajith</td>
+              <td style="padding:0 18px 0 0;"><strong style="color:#153e46;">Salesperson</strong><br>&nbsp;</td>
               <td style="padding:0 18px;border-left:1px solid #d6e1e4;"><strong style="color:#153e46;">Quote No.</strong><br><span data-quote-number>${number}</span></td>
               <td style="padding:0 0 0 18px;border-left:1px solid #d6e1e4;"><strong style="color:#153e46;">Date</strong><br>${h(displayDate(editor.date))}</td>
             </tr>
@@ -82,7 +81,7 @@ export function renderQuote(editor: Editor, totals?: Totals) {
           <td style="width:25%;padding:12px;border:1px solid #d7e4e7;"><div style="font-size:10px;text-transform:uppercase;color:#7a9298;font-weight:700;">Incoterms</div><div style="margin-top:5px;color:#1d3940;">${h(editor.incoterms)}</div></td>
           <td style="width:25%;padding:12px;border:1px solid #d7e4e7;"><div style="font-size:10px;text-transform:uppercase;color:#7a9298;font-weight:700;">Payment Terms</div><div style="margin-top:5px;color:#1d3940;">${h(editor.payment)}</div></td>
           <td style="width:25%;padding:12px;border:1px solid #d7e4e7;"><div style="font-size:10px;text-transform:uppercase;color:#7a9298;font-weight:700;">Validity</div><div style="margin-top:5px;color:#1d3940;">${h(editor.validity)}</div></td>
-          <td style="width:25%;padding:12px;border:1px solid #d7e4e7;"><div style="font-size:10px;text-transform:uppercase;color:#7a9298;font-weight:700;">Country of Origin</div><div style="margin-top:5px;color:#1d3940;">Multiple</div></td>
+          <td style="width:25%;padding:12px;border:1px solid #d7e4e7;"><div style="font-size:10px;text-transform:uppercase;color:#7a9298;font-weight:700;">Country of Origin</div><div style="margin-top:5px;color:#1d3940;">${h(editor.origin)}</div></td>
         </tr>
       </table>
     </div>
@@ -136,7 +135,7 @@ export function renderQuote(editor: Editor, totals?: Totals) {
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="width:100%;border-collapse:collapse;background:#0f353c;">
       <tr>
         <td style="padding:15px 24px;color:#d7eef3;font-size:11px;"><strong style="color:#ffffff;">Encore Powers General Trading Co. L.L.C</strong></td>
-        <td style="padding:15px 24px;text-align:right;color:#d7eef3;font-size:11px;"><a href="mailto:sales5@encorepowers.com" style="color:#d7eef3;text-decoration:none;">sales5@encorepowers.com</a> &nbsp;•&nbsp; <a href="https://encorepowers.com/" style="color:#d7eef3;text-decoration:none;">encorepowers.com</a></td>
+        <td style="padding:15px 24px;text-align:right;color:#d7eef3;font-size:11px;">&nbsp;</td>
       </tr>
     </table>
   </div>
