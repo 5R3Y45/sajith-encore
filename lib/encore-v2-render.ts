@@ -1,11 +1,11 @@
 import { Editor, quoteNumber, safeUrl } from './model';
 import { Totals } from './calculations';
-import { encoreLogoIcon } from './encore-logo-icon';
+import { encoreLogo } from './encore-logo';
 
 export const escapeHtml = (value: string | number | null) => String(value ?? '').replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[character]!));
 const displayDate = (date: string) => date.split('-').reverse().join('/');
 
-export function renderQuote(editor: Editor, totals?: Totals) {
+export function renderEncoreV2Quote(editor: Editor, totals?: Totals) {
  const h = escapeHtml;
  const number = h(quoteNumber(editor.date,editor.serial));
  const customer = h(editor.customer || 'Customer');
@@ -44,19 +44,10 @@ export function renderQuote(editor: Editor, totals?: Totals) {
   <div style="max-width:940px;margin:0 auto;background:#ffffff;border:1px solid #dbe4e7;border-radius:14px;overflow:hidden;box-shadow:0 8px 28px rgba(24,55,65,.08);">
     <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
       <tr>
-        <td style="width:45%;background:#ffffff;padding:20px 22px;vertical-align:middle;">
-          <table role="presentation" cellspacing="0" cellpadding="0" style="border-collapse:collapse;width:100%;">
-            <tr>
-              <td style="width:76px;padding:0 14px 0 0;vertical-align:middle;"><img src="${encoreLogoIcon}" alt="Encore Powers icon" width="72" height="60" style="display:block;width:72px;height:60px;border:0;"></td>
-              <td style="vertical-align:middle;color:#153e46;line-height:1.3;">
-                <div style="font-size:21px;font-weight:800;letter-spacing:.4px;">ENCORE POWERS</div>
-                <div style="font-size:10px;font-weight:700;letter-spacing:1.1px;">GENERAL TRADING CO LLC</div>
-                <div style="margin-top:7px;font-size:9px;line-height:1.45;color:#40545b;">3/303, Al Zarrouni Building, Damascus Street,<br>Al Qusais Industrial 2, Dubai, UAE.<br>043581030 | 0504291823<br>TRN:104014644900003</div>
-              </td>
-            </tr>
-          </table>
+        <td style="width:34%;background:#0f353c;padding:24px;vertical-align:middle;">
+          <img src="${encoreLogo}" alt="Encore Powers" width="245" style="display:block;width:245px;max-width:100%;height:auto;border:0;">
         </td>
-        <td style="width:55%;padding:26px 30px 24px;vertical-align:middle;background:#ffffff;">
+        <td style="width:66%;padding:26px 30px 24px;vertical-align:middle;background:#ffffff;">
           <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#4e7f89;font-weight:700;">Commercial Offer</div>
           <div style="margin-top:5px;font-size:31px;line-height:1.1;font-weight:800;color:#153e46;">QUOTATION</div>
           <table role="presentation" cellspacing="0" cellpadding="0" style="margin-top:16px;border-collapse:collapse;font-size:12px;color:#40545b;">

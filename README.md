@@ -27,7 +27,7 @@ After the first successful load and service-worker installation, both pages and 
 
 The original reference is retained at `reference/original-template.html`. Rendering preserves its nine-column merged-cell layout, inline typography/borders/padding, commercial defaults and exact warranty/condition text. The closing paragraph, including “Best regards” and the MW Group email signature, is removed as requested. The supplied lead time is only `[Lead time]`, so the editor requires your own lead time instead of inventing one. Manufacturer and weight remain inside the existing description cell; no columns were added. Customer email and quotation date are stored; the template has no separate cells for them. The date is reflected in the quotation number, and the customer name in the salutation.
 
-Prices use decimal arithmetic with half-up rounding. Shipping is calculated from each unit's weight rounded upward to 0.5 kg, at AED 30/kg. Final unit prices round to two decimals before multiplication; VAT is 5% of the subtotal rounded to two decimals. Each quotation snapshots its manually configured rates.
+Prices use decimal arithmetic with half-up rounding. Shipping is calculated from each unit's weight rounded upward to the next 0.25 kg, at AED 30/kg. Final unit prices round to two decimals before multiplication; VAT is 5% of the subtotal rounded to two decimals. Each quotation snapshots its manually configured rates.
 
 Full numbers are reserved atomically with saves. Reservations survive deletion, and suggestions use the year's highest reserved serial plus one. Reusing a serial on a different day warns but is allowed; reusing another quotation's full number is blocked, including after deletion.
 
