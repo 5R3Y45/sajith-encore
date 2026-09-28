@@ -1,4 +1,4 @@
-import { Editor, quoteNumber, safeUrl } from './model';
+import { Editor, safeUrl } from './model';
 import { Totals } from './calculations';
 import { encoreLogoIcon } from './encore-logo-icon';
 
@@ -7,7 +7,7 @@ const displayDate = (date: string) => date.split('-').reverse().join('/');
 
 export function renderQuote(editor: Editor, totals?: Totals) {
  const h = escapeHtml;
- const number = h(quoteNumber(editor.date,editor.serial));
+ const number = h(editor.number);
  const customer = h(editor.customer || 'Customer');
  const rows = editor.products.map((product,index) => {
   const partNumber = h(product.part_number);

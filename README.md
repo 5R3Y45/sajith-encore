@@ -19,7 +19,7 @@ After the first successful load and service-worker installation, both pages and 
 ## Workflow
 
 1. Upload or paste schema 1.0 product JSON and choose **Import Products**.
-2. Enter customer details, quotation serial, per-product prices, weights and lead times. USD is fixed at 3.70 AED; AED is 1.00. Configure EUR/GBP manually when used.
+2. Enter customer details, the editable quotation number, per-product prices, weights and lead times. USD is fixed at 3.70 AED; AED is 1.00. Configure EUR/GBP manually when used.
 3. Choose **Modify Template** to validate and regenerate. Copy/download/save remain disabled until the preview reflects the latest inputs.
 4. **Copy Quotation** writes formatted HTML and plain text to the clipboard. Paste into Outlook using source formatting. If clipboard access is blocked, download the HTML, open it in your browser, select the quotation and copy it.
 5. **Save Quotation** stores a Draft. Mark it as Sent separately in History after actually sending it; a customer name is required and an actual timestamp is recorded.
@@ -29,7 +29,7 @@ The original reference is retained at `reference/original-template.html`. Render
 
 Prices use decimal arithmetic with half-up rounding. Shipping is calculated from each unit's weight rounded upward to the next 0.25 kg, at AED 30/kg. Final unit prices round to two decimals before multiplication; VAT is 5% of the subtotal rounded to two decimals. Each quotation snapshots its manually configured rates.
 
-Full numbers are reserved atomically with saves. Reservations survive deletion, and suggestions use the year's highest reserved serial plus one. Reusing a serial on a different day warns but is allowed; reusing another quotation's full number is blocked, including after deletion.
+Automatic numbers use a separate daily sequence and reset to `S1` on each calendar date. Automatic reservations survive deletion, so previously allocated daily numbers are not reused. The full number is editable; exact manual duplicates show a warning but remain saveable and are preserved unchanged.
 
 ## Backup and restore
 
